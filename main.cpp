@@ -88,7 +88,7 @@ public:
 			int f = 0;
 			while (trav)
 			{
-				if (lpnn->val < trav->val)
+				if (lpnn->val <= trav->val)
 				{
 					if (!back)
 					{
