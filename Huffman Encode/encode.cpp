@@ -261,7 +261,7 @@ int main()
 	int maxSize = 100000;
 	char* inchars = new char[maxSize];
 	int i;
-	ifstream inputfile("stuff.txt", ifstream::binary);
+	ifstream inputfile("input_text.txt", ifstream::binary);
 	inputfile.seekg (0, inputfile.end);
     int flen = inputfile.tellg();
     inputfile.seekg (3, inputfile.beg);
@@ -282,9 +282,7 @@ int main()
 			l->Insert(lnn);
 		}
 	}
-	//l->print();
 	l->Convert();
-	//l->head->down->PrintHuffmanTree(0);
 	l->head->down->PrintCodes("");
 
 	finalNodes.CreateFromTree(l->head->down);
@@ -322,7 +320,7 @@ int main()
 		ci++;
 	}
 
-	ofstream outfile("outstuff.bin", fstream::binary);
+	ofstream outfile("encoded_text.bin", fstream::binary);
 
 	for (i = 0; i < ci; i++)
 	{
