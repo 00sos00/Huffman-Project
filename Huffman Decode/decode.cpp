@@ -298,28 +298,27 @@ int main()
 	encodedTextFile.read(&byte2, 1);
 	encodedTextFile.read(&byte3, 1);
 	encodedTextFile.read(&byte4, 1);
-	int numberOfBytes = 0;
-	numberOfBytes |= (int)byte1 << 24;
-	numberOfBytes |= (int)byte1 << 16;
-	numberOfBytes |= (int)byte1 << 8;
-	numberOfBytes |= byte4;
+	int numberOfBytes = ((int)(unsigned char)byte1 << 24) |
+                    ((int)(unsigned char)byte2 << 16) |
+                    ((int)(unsigned char)byte3 << 8) |
+                    (int)(unsigned char)byte4;
 
 	// Read number of compressed bits
 	encodedTextFile.read(&byte1, 1);
 	encodedTextFile.read(&byte2, 1);
 	encodedTextFile.read(&byte3, 1);
 	encodedTextFile.read(&byte4, 1);
-	int numberOfBits = 0;
-	numberOfBits |= (int)byte1 << 24;
-	numberOfBits |= (int)byte1 << 16;
-	numberOfBits |= (int)byte1 << 8;
-	numberOfBits |= byte4;
+	int numberOfBits = ((int)(unsigned char)byte1 << 24) |
+                    ((int)(unsigned char)byte2 << 16) |
+                    ((int)(unsigned char)byte3 << 8) |
+                    (int)(unsigned char)byte4;
 
 	char* compressed = new char[numberOfBytes];
 	for (i = 0; i < numberOfBytes; i++)
 	{
 		encodedTextFile.read(&compressed[i], 1);
 	}
+	encodedTextFile.close();
 	
 	ofstream outfile("decoded_text.txt", fstream::binary);
 	for (int bi = 0; bi < numberOfBits; bi++)
@@ -349,6 +348,8 @@ int main()
 			t = t->next;
 		}
 	}
+
+	outfile.close();
 
 	return 0;
 }

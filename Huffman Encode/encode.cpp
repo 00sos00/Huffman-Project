@@ -288,6 +288,7 @@ int main()
 		freq[inchars[i]]++;
 	}
 	inchars[i] = '\0';
+	inputfile.close();
 
 	for (i = 0; i < 256; i++)
 	{
@@ -306,8 +307,8 @@ int main()
 
 	string tmp;
 	int ci = 0;
-	int maxComp = 100000;
 	int bitsWritten = 0;
+	int maxComp = 100000;
 	char* compressed = new char[maxComp];
 	for (i = 0; inchars[i] != '\0' && i < maxComp; i++)
 	{
@@ -362,6 +363,7 @@ int main()
 	char byte2 = ci >> 16;
 	char byte3 = ci >> 8;
 	char byte4 = ci;
+
 	outfile.write(&byte1, 1);
 	outfile.write(&byte2, 1);
 	outfile.write(&byte3, 1);
@@ -381,4 +383,6 @@ int main()
 	{
 		outfile.write(&compressed[i], 1);
 	}
+
+	outfile.close();
 }
