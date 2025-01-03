@@ -126,6 +126,7 @@ public:
 
 	void Convert()
 	{
+		if (!head) return;
 		while (head->next)
 		{
 			ListNode* first = head;
@@ -197,6 +198,18 @@ public:
 		head = tail = NULL;
 	}
 
+	int Size()
+	{
+		int cnt = 0;
+		ListNode* trav = head;
+		while (trav)
+		{
+			cnt++;
+			trav = trav->next;
+		}
+		return cnt;
+	}
+
 	void Insert(ListNode* pnn)
 	{
 		if (!head) {
@@ -255,7 +268,7 @@ char ByteFromString(string& tmp)
 
 int main()
 {  
-	List finalNodes;
+	List finalCodes;
 	SortedList* l = new SortedList;
 	int freq[256] = { 0 };
 	int maxSize = 100000;
@@ -264,14 +277,18 @@ int main()
 	ifstream inputfile("input_text.txt", ifstream::binary);
 	inputfile.seekg (0, inputfile.end);
     int flen = inputfile.tellg();
-    inputfile.seekg (3, inputfile.beg);
-	for (i = 0; i < flen - 3 && i < maxSize; i++)
+    inputfile.seekg (0, inputfile.beg);
+	for (i = 0; i < flen && i < maxSize; i++)
 	{
 		if (i >= maxSize - 1) break;
+		// Note: we are reading as char
+		// Which could to negative values being read
+		// Which could lead to invalid memory access
 		inputfile.read(&inchars[i], 1);
 		freq[inchars[i]]++;
 	}
 	inchars[i] = '\0';
+
 	for (i = 0; i < 256; i++)
 	{
 		if (freq[i] > 0)
@@ -285,7 +302,7 @@ int main()
 	l->Convert();
 	l->head->down->PrintCodes("");
 
-	finalNodes.CreateFromTree(l->head->down);
+	finalCodes.CreateFromTree(l->head->down);
 
 	string tmp;
 	int ci = 0;
@@ -294,7 +311,7 @@ int main()
 	char* compressed = new char[maxComp];
 	for (i = 0; inchars[i] != '\0' && i < maxComp; i++)
 	{
-		string code = finalNodes.GetCode(inchars[i]);
+		string code = finalCodes.GetCode(inchars[i]);
 		for (int j = 0; j < code.size(); j++)
 		{
 			tmp += code[j];
@@ -321,37 +338,47 @@ int main()
 	}
 
 	ofstream outfile("encoded_text.bin", fstream::binary);
+	char codesCount = finalCodes.Size();
+	outfile.write(&codesCount, 1);
+	ListNode* t = finalCodes.head;
+	// For each code:
+	// 1. Write code size
+	// 2. Write corresponding character
+	// 3. Write code itself as chars to make a string in the end
+	while (t)
+	{
+		char codeSize = t->code.size();
+		outfile.write(&t->c[0], 1);
+		outfile.write(&codeSize, 1);
+		for (i = 0; i < t->code.size(); i++)
+		{
+			outfile.write(&t->code[i], 1);
+		}
+		t = t->next;
+	}
+
+	// Write number of compressed bytes
+	char byte1 = ci >> 24;
+	char byte2 = ci >> 16;
+	char byte3 = ci >> 8;
+	char byte4 = ci;
+	outfile.write(&byte1, 1);
+	outfile.write(&byte2, 1);
+	outfile.write(&byte3, 1);
+	outfile.write(&byte4, 1);
+
+	// Write number of compressed bits
+	byte1 = bitsWritten >> 24;
+	byte2 = bitsWritten >> 16;
+	byte3 = bitsWritten >> 8;
+	byte4 = bitsWritten;
+	outfile.write(&byte1, 1);
+	outfile.write(&byte2, 1);
+	outfile.write(&byte3, 1);
+	outfile.write(&byte4, 1);
 
 	for (i = 0; i < ci; i++)
 	{
 		outfile.write(&compressed[i], 1);
-	}
-	
-	for (int bi = 0; bi < bitsWritten; bi++)
-	{
-		string current_code;
-		ListNode* t = finalNodes.head;
-		while (t)
-		{
-			int f = 1;
-			for (int j = 0; j < t->code.size(); j++)
-			{
-				int bi2 = bi + j;
-				int bitState = (compressed[bi2 / 8] & (1 << (7 - bi2 % 8))) > 0;
-				int ctoi = t->code[j] - '0';
-				if (ctoi != bitState)
-				{
-					f = 0;
-					break;
-				}
-			}
-			if (f)
-			{
-				cout << t->c;
-				bi += t->code.size() - 1;
-				break;
-			}
-			t = t->next;
-		}
 	}
 }
