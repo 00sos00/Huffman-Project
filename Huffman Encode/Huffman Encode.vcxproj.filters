@@ -19,7 +19,4 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="input_text.txt" />
-  </ItemGroup>
 </Project>

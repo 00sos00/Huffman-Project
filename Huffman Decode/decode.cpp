@@ -270,10 +270,15 @@ int main()
 	int i;
 	char c;
 	List finalCodes;
-	ifstream encodedTextFile("encoded_text.bin", ifstream::binary);
-	char codesCount;
+	ifstream encodedTextFile("compressed_img.bmp", ifstream::binary);
+
+	if (!encodedTextFile) {
+        cout << "Error opening input file!";
+        return -1;
+    }
+	char codesCount = 0;
 	encodedTextFile.read(&codesCount, 1);
-	for (i = 0; i < codesCount; i++)
+	for (i = 0; i < (int)(unsigned char)codesCount + 1; i++)
 	{
 		ListNode* pnn = new ListNode;
 		encodedTextFile.read(&c, 1);
@@ -320,7 +325,13 @@ int main()
 	}
 	encodedTextFile.close();
 	
-	ofstream outfile("decoded_text.txt", fstream::binary);
+	ofstream outfile("original_img.bmp", fstream::binary);
+
+	if (!outfile) {
+        cout << "Error opening output file!";
+        return -1;
+    }
+
 	for (int bi = 0; bi < numberOfBits; bi++)
 	{
 		string current_code;
@@ -350,6 +361,6 @@ int main()
 	}
 
 	outfile.close();
-
+	delete[] compressed;
 	return 0;
 }

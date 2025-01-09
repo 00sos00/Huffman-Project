@@ -271,23 +271,25 @@ int main()
 	List finalCodes;
 	SortedList* l = new SortedList;
 	int freq[256] = { 0 };
-	int maxSize = 100000;
+	int maxSize = 8000000;
 	char* inchars = new char[maxSize];
 	int i;
-	ifstream inputfile("input_text.txt", ifstream::binary);
+	ifstream inputfile("sample_img.bmp", ifstream::binary);
+
+	if (!inputfile) {
+        cout << "Error opening input file!";
+        return -1;
+    }
+
 	inputfile.seekg (0, inputfile.end);
     int flen = inputfile.tellg();
     inputfile.seekg (0, inputfile.beg);
 	for (i = 0; i < flen && i < maxSize; i++)
 	{
-		if (i >= maxSize - 1) break;
-		// Note: we are reading as char
-		// Which could to negative values being read
-		// Which could lead to invalid memory access
+		if (i == maxSize - 1) break;
 		inputfile.read(&inchars[i], 1);
-		freq[inchars[i]]++;
+		freq[(unsigned char)(inchars[i] + 128)]++;
 	}
-	inchars[i] = '\0';
 	inputfile.close();
 
 	for (i = 0; i < 256; i++)
@@ -308,9 +310,9 @@ int main()
 	string tmp;
 	int ci = 0;
 	int bitsWritten = 0;
-	int maxComp = 100000;
+	int maxComp = 8000000;
 	char* compressed = new char[maxComp];
-	for (i = 0; inchars[i] != '\0' && i < maxComp; i++)
+	for (i = 0; i < flen && ci < maxComp; i++)
 	{
 		string code = finalCodes.GetCode(inchars[i]);
 		for (int j = 0; j < code.size(); j++)
@@ -338,8 +340,14 @@ int main()
 		ci++;
 	}
 
-	ofstream outfile("encoded_text.bin", fstream::binary);
-	char codesCount = finalCodes.Size();
+	ofstream outfile("compressed_img.bmp", fstream::binary);
+
+	if (!outfile) {
+        cout << "Error opening output file!";
+        return -1;
+    }
+
+	char codesCount = finalCodes.Size() - 1;
 	outfile.write(&codesCount, 1);
 	ListNode* t = finalCodes.head;
 	// For each code:
@@ -385,4 +393,7 @@ int main()
 	}
 
 	outfile.close();
+	delete[] inchars;
+	delete[] compressed;
+	return 0;
 }
