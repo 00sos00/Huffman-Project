@@ -268,18 +268,21 @@ char ByteFromString(string& tmp)
 
 int main()
 {  
+	cout << "Please enter file name: ";
+	string fname; cin >> fname;
+	ifstream inputfile(fname + ".bmp", ifstream::binary);
+
+	if (!inputfile) {
+        cout << "Error opening input file!";
+        return -1;
+    }
+
 	List finalCodes;
 	SortedList* l = new SortedList;
 	int freq[256] = { 0 };
 	int maxSize = 8000000;
 	char* inchars = new char[maxSize];
 	int i;
-	ifstream inputfile("sample_img.bmp", ifstream::binary);
-
-	if (!inputfile) {
-        cout << "Error opening input file!";
-        return -1;
-    }
 
 	inputfile.seekg (0, inputfile.end);
     int flen = inputfile.tellg();
@@ -288,7 +291,7 @@ int main()
 	{
 		if (i == maxSize - 1) break;
 		inputfile.read(&inchars[i], 1);
-		freq[(unsigned char)(inchars[i] + 128)]++;
+		freq[(unsigned char)inchars[i]]++;
 	}
 	inputfile.close();
 
@@ -314,7 +317,7 @@ int main()
 	char* compressed = new char[maxComp];
 	for (i = 0; i < flen && ci < maxComp; i++)
 	{
-		string code = finalCodes.GetCode(inchars[i]);
+		string code = finalCodes.GetCode((unsigned char)inchars[i]);
 		for (int j = 0; j < code.size(); j++)
 		{
 			tmp += code[j];
@@ -339,7 +342,6 @@ int main()
 		compressed[ci] = b;
 		ci++;
 	}
-
 	ofstream outfile("compressed_img.bmp", fstream::binary);
 
 	if (!outfile) {

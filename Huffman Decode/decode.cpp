@@ -334,7 +334,6 @@ int main()
 
 	for (int bi = 0; bi < numberOfBits; bi++)
 	{
-		string current_code;
 		ListNode* t = finalCodes.head;
 		while (t)
 		{
