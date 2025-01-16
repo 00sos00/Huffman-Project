@@ -277,19 +277,17 @@ int main()
         return -1;
     }
 
+	int i;
 	List finalCodes;
 	SortedList* l = new SortedList;
 	int freq[256] = { 0 };
-	int maxSize = 8000000;
-	char* inchars = new char[maxSize];
-	int i;
 
 	inputfile.seekg (0, inputfile.end);
     int flen = inputfile.tellg();
     inputfile.seekg (0, inputfile.beg);
-	for (i = 0; i < flen && i < maxSize; i++)
+	char* inchars = new char[flen];
+	for (i = 0; i < flen; i++)
 	{
-		if (i == maxSize - 1) break;
 		inputfile.read(&inchars[i], 1);
 		freq[(unsigned char)inchars[i]]++;
 	}
@@ -313,16 +311,14 @@ int main()
 	string tmp;
 	int ci = 0;
 	int bitsWritten = 0;
-	int maxComp = 8000000;
-	char* compressed = new char[maxComp];
-	for (i = 0; i < flen && ci < maxComp; i++)
+	char* compressed = new char[flen];
+	for (i = 0; i < flen; i++)
 	{
 		string code = finalCodes.GetCode((unsigned char)inchars[i]);
 		for (int j = 0; j < code.size(); j++)
 		{
 			tmp += code[j];
 			bitsWritten++;
-			if (ci >= maxComp - 1) break;
 			if (tmp.size() == 8)
 			{
 				char b = ByteFromString(tmp);
@@ -352,10 +348,6 @@ int main()
 	char codesCount = finalCodes.Size() - 1;
 	outfile.write(&codesCount, 1);
 	ListNode* t = finalCodes.head;
-	// For each code:
-	// 1. Write code size
-	// 2. Write corresponding character
-	// 3. Write code itself as chars to make a string in the end
 	while (t)
 	{
 		char codeSize = t->code.size();
@@ -368,7 +360,6 @@ int main()
 		t = t->next;
 	}
 
-	// Write number of compressed bytes
 	char byte1 = ci >> 24;
 	char byte2 = ci >> 16;
 	char byte3 = ci >> 8;
@@ -379,7 +370,6 @@ int main()
 	outfile.write(&byte3, 1);
 	outfile.write(&byte4, 1);
 
-	// Write number of compressed bits
 	byte1 = bitsWritten >> 24;
 	byte2 = bitsWritten >> 16;
 	byte3 = bitsWritten >> 8;
